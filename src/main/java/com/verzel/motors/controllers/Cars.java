@@ -4,7 +4,6 @@ import com.verzel.motors.Services.S3Service;
 import com.verzel.motors.database.CarsModel;
 import com.verzel.motors.database.CarsRepository;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URL;
 import java.util.List;
@@ -23,12 +22,23 @@ public class Cars {
 
     @GetMapping()
     public List<CarsModel> listCars() {
-        return carsRepository.findAll();
+        List<CarsModel> cars = carsRepository.findAll();
+        for (CarsModel car: cars) {
+            String img = car.getImage();
+            URL url = s3Service.getPresignedUrl(img);
+            car.setImage(url.toString());
+        }
+
+        return cars;
     }
 
     @PatchMapping("/me")
-    public CarsModel update(@RequestBody CarsModel cars) {
-        return carsRepository.save(cars);
+    public URL update(@RequestBody CarsModel cars) {
+        String filename = UUID.randomUUID() +"-"+ cars.getImage();
+        cars.setImage(filename);
+
+        carsRepository.save(cars);
+        return s3Service.putPresignedUrl(filename);
     }
 
     @DeleteMapping("/me")
@@ -37,24 +47,23 @@ public class Cars {
         return;
     }
 
-    @PostMapping("/me/upload")
-    public URL upload(@RequestBody String file) {
-        String filename = UUID.randomUUID() +"-"+ file;
-        return s3Service.putPresignedUrl(filename);
-    }
-
-    @GetMapping("/me/upload")
-    public URL viewImage(@RequestParam String file) {
-        return s3Service.getPresignedUrl(file);
-    }
-
     @PostMapping("/me")
-    public CarsModel create(@RequestBody CarsModel car) {
-        return carsRepository.save(car);
+    public URL create(@RequestBody CarsModel cars) {
+        String filename = UUID.randomUUID() +"-"+ cars.getImage();
+        cars.setImage(filename);
+        carsRepository.save(cars);
+        return s3Service.putPresignedUrl(filename);
     }
 
     @GetMapping("/me")
     public List<CarsModel> listCarsByOwner(@RequestParam String owner) {
-        return carsRepository.findAllByOwner(owner);
+        List<CarsModel> cars = carsRepository.findAllByOwner(owner);
+        for (CarsModel car: cars) {
+            String img = car.getImage();
+            URL url = s3Service.getPresignedUrl(img);
+            car.setImage(url.toString());
+        }
+
+        return cars;
     }
 }
