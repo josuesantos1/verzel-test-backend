@@ -6,7 +6,7 @@ import com.verzel.motors.database.CarsRepository;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 import java.util.UUID;
 
@@ -38,16 +38,14 @@ public class Cars {
     }
 
     @PostMapping("/me/upload")
-    public String upload(@RequestPart MultipartFile file) {
-        String originalFilename = file.getOriginalFilename();
-        String filename = "cars/" + UUID.randomUUID() + "-" + originalFilename;
+    public URL upload(@RequestBody String file) {
+        String filename = UUID.randomUUID() +"-"+ file;
+        return s3Service.putPresignedUrl(filename);
+    }
 
-        try {
-            return s3Service.uploadFile(filename, file.getInputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
+    @GetMapping("/me/upload")
+    public URL viewImage(@RequestParam String file) {
+        return s3Service.getPresignedUrl(file);
     }
 
     @PostMapping("/me")
