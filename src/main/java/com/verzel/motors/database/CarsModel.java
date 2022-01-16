@@ -24,4 +24,5 @@ public class CarsModel {
     private int year;
     private String price;
     private String description;
+    private String mileage;
 }
