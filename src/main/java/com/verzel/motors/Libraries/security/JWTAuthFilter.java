@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class JWTAuthFilter  extends UsernamePasswordAuthenticationFilter {
-    public static final int TOKEN_EXPIRES = 3600000;
+    public static final int TOKEN_EXPIRES = 36000000;
     public static final String password = "de9b557e-8974-452f-9345-d12c654607cc"; // use while dev
 
     private final AuthenticationManager authenticationManager;
